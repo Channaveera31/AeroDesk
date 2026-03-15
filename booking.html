@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroDesk – Book Flight</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    .page-wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 48px 24px 80px;
+      position: relative; z-index: 1;
+    }
+
+    .page-eyebrow {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--teal-bright);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .page-eyebrow::before {
+      content:''; display:inline-block;
+      width:32px; height:1px; background:var(--teal-bright);
+    }
+
+    .page-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--white);
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      font-size: 0.88rem;
+      color: var(--muted);
+      margin-bottom: 36px;
+    }
+
+    /* Steps indicator */
+    .steps {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 40px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .step-circle {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      border: 2px solid var(--glass-border);
+      color: var(--muted);
+      background: var(--glass-bg);
+      flex-shrink: 0;
+      transition: all 0.3s;
+    }
+
+    .step.active .step-circle {
+      background: linear-gradient(135deg, var(--teal), var(--teal-bright));
+      border-color: var(--teal-bright);
+      color: white;
+      box-shadow: 0 0 16px rgba(0,196,167,0.4);
+    }
+
+    .step.done .step-circle {
+      background: rgba(34,201,122,0.2);
+      border-color: var(--success);
+      color: var(--success);
+    }
+
+    .step-label { font-size: 0.82rem; color: var(--muted); font-weight: 500; }
+    .step.active .step-label { color: var(--teal-bright); }
+    .step.done .step-label   { color: var(--success); }
+
+    .step-line {
+      flex: 1;
+      height: 1px;
+      background: var(--glass-border);
+      margin: 0 12px;
+    }
+
+    /* Main layout */
+    .booking-layout {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 28px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 768px) {
+      .booking-layout { grid-template-columns: 1fr; }
+    }
+
+    /* Flight summary card (right) */
+    .summary-card {
+      background: rgba(21,30,48,0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 84px;
+    }
+
+    .summary-label {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 20px;
+    }
+
+    .summary-flight-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      color: var(--white);
+      margin-bottom: 16px;
+    }
+
+    .summary-route {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .summary-city {
+      text-align: center;
+    }
+
+    .summary-city-name {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--white);
+    }
+
+    .summary-city-label {
+      font-size: 0.7rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .route-divider {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .route-line {
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(to right, var(--teal), var(--teal-bright));
+      position: relative;
+    }
+
+    .route-line::after {
+      content: '✈';
+      position: absolute;
+      top: -9px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      color: var(--teal-bright);
+    }
+
+    .route-time {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .summary-details {
+      border-top: 1px solid var(--glass-border);
+      padding-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-row-label { font-size: 0.8rem; color: var(--muted); }
+    .summary-row-value { font-size: 0.88rem; color: var(--off-white); font-weight: 500; }
+
+    .summary-total {
+      border-top: 1px solid var(--glass-border);
+      margin-top: 8px;
+      padding-top: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .summary-total-label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-total-price {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--teal-bright);
+      font-weight: 700;
+    }
+
+    /* Booking form card (left) */
+    .form-card {
+      background: rgba(21,30,48,0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      padding: 36px 40px;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .section-heading {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--teal-bright);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-heading i { font-size: 1rem; }
+
+    .form-divider {
+      border: none;
+      border-top: 1px solid var(--glass-border);
+      margin: 28px 0;
+    }
+
+    .form-grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-grid-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 16px;
+    }
+
+    .full { grid-column: 1 / -1; }
+
+    /* Passenger tabs (for multiple travellers) */
+    .pax-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 22px;
+      flex-wrap: wrap;
+    }
+
+    .pax-tab {
+      padding: 6px 18px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .pax-tab.active {
+      background: var(--teal-glow);
+      border-color: rgba(0,196,167,0.3);
+      color: var(--teal-bright);
+    }
+
+    .pax-form { display: none; }
+    .pax-form.active { display: block; }
+
+    /* Payment section */
+    .payment-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .card-preview {
+      grid-column: 1 / -1;
+      background: linear-gradient(135deg, rgba(0,128,128,0.4), rgba(0,80,80,0.6));
+      border: 1px solid rgba(0,196,167,0.2);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      margin-bottom: 8px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-preview::before {
+      content: '';
+      position: absolute;
+      top: -30px; right: -30px;
+      width: 120px; height: 120px;
+      border-radius: 50%;
+      background: rgba(0,196,167,0.08);
+    }
+
+    .card-chip {
+      width: 36px; height: 26px;
+      background: linear-gradient(135deg, var(--gold), #e0a020);
+      border-radius: 5px;
+      margin-bottom: 16px;
+    }
+
+    .card-number-preview {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      font-family: monospace;
+    }
+
+    .card-info-row {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .card-info-label { font-size: 0.65rem; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; }
+    .card-info-value { font-size: 0.82rem; color: var(--white); font-weight: 600; margin-top: 2px; }
+
+    /* Submit */
+    .btn-confirm {
+      width: 100%;
+      height: 54px;
+      background: linear-gradient(135deg, var(--teal), var(--teal-bright));
+      color: white;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      margin-top: 28px;
+      transition: filter 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 8px 24px rgba(0,196,167,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+
+    .btn-confirm:hover {
+      filter: brightness(1.1);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0,196,167,0.45);
+    }
+
+    .secure-note {
+      text-align: center;
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .secure-note i { color: var(--success); }
+
+    /* Card number formatting */
+    input[data-card] { letter-spacing: 2px; font-family: monospace; font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a href="home.html" class="navbar-brand">
+    <div class="brand-icon">✈</div>
+    <span class="brand-name">Aero<span>Desk</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="home.html"><i class='bx bx-home-alt'></i> Home</a></li>
+    <li><a href="profile.html"><i class='bx bx-user-circle'></i> My Profile</a></li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle"><i class='bx bx-trip'></i> My Trips</a>
+      <div class="dropdown-menu">
+        <a href="upcoming.html"><i class='bx bx-takeoff'></i> Upcoming</a>
+        <a href="cancelled.html"><i class='bx bx-x-circle'></i> Cancelled</a>
+        <a href="completed.html"><i class='bx bx-check-circle'></i> Completed</a>
+      </div>
+    </li>
+    <li><a href="index.html" onclick="sessionStorage.clear()"><i class='bx bx-log-out'></i> Logout</a></li>
+  </ul>
+  <div class="nav-welcome" id="welcomeMsg">Welcome</div>
+</nav>
+
+<div class="page-wrap">
+
+  <!-- Header -->
+  <p class="page-eyebrow fade-up">Booking</p>
+  <h1 class="page-title fade-up">Complete Your Booking</h1>
+  <p class="page-sub fade-up">Fill in passenger details and payment to confirm your flight.</p>
+
+  <!-- Steps -->
+  <div class="steps fade-up">
+    <div class="step active" id="step1">
+      <div class="step-circle">1</div>
+      <span class="step-label">Passenger Details</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" id="step2">
+      <div class="step-circle">2</div>
+      <span class="step-label">Payment</span>
+    </div>
+    <div class="step-line"></div>
+    <div class="step" id="step3">
+      <div class="step-circle">3</div>
+      <span class="step-label">Confirmation</span>
+    </div>
+  </div>
+
+  <div class="booking-layout">
+
+    <!-- LEFT: Form -->
+    <div>
+      <form id="bookingForm" novalidate>
+
+        <!-- SECTION 1: Passenger Details -->
+        <div class="form-card fade-up" id="sectionPassenger">
+
+          <div class="section-heading"><i class='bx bx-user'></i> Passenger Details</div>
+
+          <!-- Passenger tabs (generated dynamically) -->
+          <div class="pax-tabs" id="paxTabs"></div>
+          <div id="paxForms"></div>
+
+          <hr class="form-divider"/>
+
+          <!-- Contact Details -->
+          <div class="section-heading"><i class='bx bx-phone'></i> Contact Details</div>
+          <div class="form-grid-2">
+            <div class="field-group">
+              <label for="contactEmail">Email Address *</label>
+              <input type="email" id="contactEmail" placeholder="you@example.com"/>
+              <span class="field-error" id="err-contactEmail"></span>
+            </div>
+            <div class="field-group">
+              <label for="contactPhone">Phone Number *</label>
+              <input type="text" id="contactPhone" placeholder="10-digit number" maxlength="10"/>
+              <span class="field-error" id="err-contactPhone"></span>
+            </div>
+          </div>
+
+          <hr class="form-divider"/>
+
+          <!-- SECTION 2: Payment -->
+          <div class="section-heading"><i class='bx bx-credit-card'></i> Payment Details</div>
+
+          <!-- Live card preview -->
+          <div class="card-preview" id="cardPreview">
+            <div class="card-chip"></div>
+            <div class="card-number-preview" id="previewNumber">•••• •••• •••• ••••</div>
+            <div class="card-info-row">
+              <div>
+                <div class="card-info-label">Card Holder</div>
+                <div class="card-info-value" id="previewName">YOUR NAME</div>
+              </div>
+              <div>
+                <div class="card-info-label">Expires</div>
+                <div class="card-info-value" id="previewExpiry">MM / YY</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="payment-grid">
+            <div class="field-group full">
+              <label for="cardName">Name on Card *</label>
+              <input type="text" id="cardName" placeholder="As printed on card"/>
+              <span class="field-error" id="err-cardName"></span>
+            </div>
+            <div class="field-group full">
+              <label for="cardNumber">Card Number *</label>
+              <input type="text" id="cardNumber" data-card placeholder="1234 5678 9012 3456" maxlength="19"/>
+              <span class="field-error" id="err-cardNumber"></span>
+            </div>
+            <div class="field-group">
+              <label for="cardExpiry">Expiry Date *</label>
+              <input type="text" id="cardExpiry" placeholder="MM / YY" maxlength="7"/>
+              <span class="field-error" id="err-cardExpiry"></span>
+            </div>
+            <div class="field-group">
+              <label for="cardCVV">CVV *</label>
+              <input type="password" id="cardCVV" placeholder="•••" maxlength="3"/>
+              <span class="field-error" id="err-cardCVV"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-confirm">
+            <i class='bx bx-lock-alt'></i> Confirm & Pay
+          </button>
+
+          <p class="secure-note">
+            <i class='bx bx-shield-quarter'></i>
+            Your payment is 256-bit SSL encrypted and secure
+          </p>
+
+        </div>
+
+      </form>
+    </div>
+
+    <!-- RIGHT: Flight Summary -->
+    <div class="summary-card fade-up fade-up-2">
+      <div class="summary-label">Flight Summary</div>
+
+      <div class="summary-flight-name" id="sumFlightName">—</div>
+
+      <div class="summary-route">
+        <div class="summary-city">
+          <div class="summary-city-name" id="sumOrigin">—</div>
+          <div class="summary-city-label">Origin</div>
+        </div>
+        <div class="route-divider">
+          <div class="route-line"></div>
+          <div class="route-time" id="sumTime">—</div>
+        </div>
+        <div class="summary-city">
+          <div class="summary-city-name" id="sumDest">—</div>
+          <div class="summary-city-label">Destination</div>
+        </div>
+      </div>
+
+      <div class="summary-details">
+        <div class="summary-row">
+          <span class="summary-row-label">Date</span>
+          <span class="summary-row-value" id="sumDate">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-row-label">Class</span>
+          <span class="summary-row-value" id="sumClass">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-row-label">Passengers</span>
+          <span class="summary-row-value" id="sumPax">—</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-row-label">Price / pax</span>
+          <span class="summary-row-value" id="sumPricePerPax">—</span>
+        </div>
+      </div>
+
+      <div class="summary-total">
+        <span class="summary-total-label">Total</span>
+        <span class="summary-total-price" id="sumTotal">—</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  // ── Load passenger name
+  const pName = sessionStorage.getItem("passengerName") || "Passenger";
+  document.getElementById("welcomeMsg").innerHTML = "Welcome <strong>" + pName + "</strong> !!!";
+
+  // ── Parse flight data from URL
+  const params = new URLSearchParams(window.location.search);
+  let flight = {};
+  try { flight = JSON.parse(decodeURIComponent(params.get("data") || "{}")); } catch(e) {}
+
+  // ── Populate summary
+  document.getElementById("sumFlightName").textContent   = flight.flightName   || "—";
+  document.getElementById("sumOrigin").textContent       = flight.origin        || "—";
+  document.getElementById("sumDest").textContent         = flight.destination   || "—";
+  document.getElementById("sumTime").textContent         = flight.time          || "—";
+  document.getElementById("sumDate").textContent         = flight.departure     || "—";
+  document.getElementById("sumClass").textContent        = flight.classType     || "—";
+  document.getElementById("sumPax").textContent          = flight.travellers    || "—";
+  document.getElementById("sumPricePerPax").textContent  = "₹" + (flight.pricePerPax || 0).toLocaleString("en-IN");
+  document.getElementById("sumTotal").textContent        = "₹" + (flight.totalPrice  || 0).toLocaleString("en-IN");
+
+  // ── Auto-fill contact from profile
+  const profile = JSON.parse(sessionStorage.getItem("passengerData") || "{}");
+  if (profile.email) document.getElementById("contactEmail").value = profile.email;
+  if (profile.contact) document.getElementById("contactPhone").value = profile.contact;
+
+  // ── Build passenger forms dynamically
+  const numPax = parseInt(flight.travellers) || 1;
+  const paxTabs  = document.getElementById("paxTabs");
+  const paxForms = document.getElementById("paxForms");
+
+  for (let i = 1; i <= numPax; i++) {
+    // Tab
+    const tab = document.createElement("button");
+    tab.type = "button";
+    tab.className = "pax-tab" + (i === 1 ? " active" : "");
+    tab.textContent = "Passenger " + i;
+    tab.dataset.pax = i;
+    tab.onclick = () => switchPax(i);
+    paxTabs.appendChild(tab);
+
+    // Form
+    const div = document.createElement("div");
+    div.className = "pax-form" + (i === 1 ? " active" : "");
+    div.id = "paxForm" + i;
+    div.innerHTML = `
+      <div class="form-grid-2" style="margin-bottom:0">
+        <div class="field-group">
+          <label>First Name *</label>
+          <input type="text" id="pax${i}_firstName" placeholder="First Name" maxlength="50"
+            ${i===1 && profile.firstName ? 'value="'+profile.firstName+'"' : ''}/>
+          <span class="field-error" id="err-pax${i}_firstName"></span>
+        </div>
+        <div class="field-group">
+          <label>Last Name *</label>
+          <input type="text" id="pax${i}_lastName" placeholder="Last Name" maxlength="50"
+            ${i===1 && profile.lastName ? 'value="'+profile.lastName+'"' : ''}/>
+          <span class="field-error" id="err-pax${i}_lastName"></span>
+        </div>
+        <div class="field-group">
+          <label>Date of Birth *</label>
+          <input type="date" id="pax${i}_dob"/>
+          <span class="field-error" id="err-pax${i}_dob"></span>
+        </div>
+        <div class="field-group">
+          <label>Gender *</label>
+          <select id="pax${i}_gender">
+            <option value="">Select Gender</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+          <span class="field-error" id="err-pax${i}_gender"></span>
+        </div>
+        <div class="field-group">
+          <label>Passport / ID No. *</label>
+          <input type="text" id="pax${i}_passport" placeholder="Passport or Aadhar No."/>
+          <span class="field-error" id="err-pax${i}_passport"></span>
+        </div>
+        <div class="field-group">
+          <label>Nationality *</label>
+          <select id="pax${i}_nationality">
+            <option value="">Select Nationality</option>
+            <option selected>Indian</option>
+            <option>American</option><option>British</option>
+            <option>Canadian</option><option>Australian</option><option>Other</option>
+          </select>
+          <span class="field-error" id="err-pax${i}_nationality"></span>
+        </div>
+      </div>`;
+    paxForms.appendChild(div);
+  }
+
+  function switchPax(n) {
+    document.querySelectorAll(".pax-tab").forEach(t => t.classList.toggle("active", parseInt(t.dataset.pax) === n));
+    document.querySelectorAll(".pax-form").forEach(f => f.classList.toggle("active", f.id === "paxForm" + n));
+  }
+
+  // ── Live card preview
+  document.getElementById("cardNumber").addEventListener("input", function() {
+    let v = this.value.replace(/\D/g,"").substring(0,16);
+    let fmt = v.match(/.{1,4}/g)?.join(" ") || "";
+    this.value = fmt;
+    const masked = (fmt + " •••• •••• •••• ••••").substring(0, 19);
+    document.getElementById("previewNumber").textContent =
+      fmt ? fmt.padEnd(19,"•").replace(/[0-9]/g,(d,i) => i < fmt.length - 4 ? "•" : d) : "•••• •••• •••• ••••";
+    document.getElementById("previewNumber").textContent = fmt || "•••• •••• •••• ••••";
+  });
+
+  document.getElementById("cardName").addEventListener("input", function() {
+    document.getElementById("previewName").textContent = this.value.toUpperCase() || "YOUR NAME";
+  });
+
+  document.getElementById("cardExpiry").addEventListener("input", function() {
+    let v = this.value.replace(/\D/g,"").substring(0,4);
+    if (v.length >= 2) v = v.substring(0,2) + " / " + v.substring(2);
+    this.value = v;
+    document.getElementById("previewExpiry").textContent = v || "MM / YY";
+  });
+
+  // ── Validation helpers
+  function setErr(id, msg) {
+    const el = document.getElementById("err-" + id);
+    if (el) el.textContent = msg;
+  }
+
+  function clearAllErr() {
+    document.querySelectorAll(".field-error").forEach(el => el.textContent = "");
+  }
+
+  // ── Form submit
+  document.getElementById("bookingForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    clearAllErr();
+    let ok = true;
+
+    // Validate all passengers
+    const passengers = [];
+    for (let i = 1; i <= numPax; i++) {
+      const fn  = document.getElementById("pax"+i+"_firstName")?.value.trim();
+      const ln  = document.getElementById("pax"+i+"_lastName")?.value.trim();
+      const dob = document.getElementById("pax"+i+"_dob")?.value;
+      const gnd = document.getElementById("pax"+i+"_gender")?.value;
+      const pp  = document.getElementById("pax"+i+"_passport")?.value.trim();
+      const nat = document.getElementById("pax"+i+"_nationality")?.value;
+
+      if (!fn)  { setErr("pax"+i+"_firstName",  "Required"); ok = false; switchPax(i); }
+      if (!ln)  { setErr("pax"+i+"_lastName",   "Required"); ok = false; switchPax(i); }
+      if (!dob) { setErr("pax"+i+"_dob",        "Required"); ok = false; switchPax(i); }
+      if (!gnd) { setErr("pax"+i+"_gender",     "Required"); ok = false; switchPax(i); }
+      if (!pp)  { setErr("pax"+i+"_passport",   "Required"); ok = false; switchPax(i); }
+      if (!nat) { setErr("pax"+i+"_nationality","Required"); ok = false; switchPax(i); }
+
+      passengers.push({ firstName:fn, lastName:ln, dob, gender:gnd, passport:pp, nationality:nat });
+    }
+
+    // Contact
+    const email = document.getElementById("contactEmail").value.trim();
+    const phone = document.getElementById("contactPhone").value.trim();
+    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setErr("contactEmail", "Enter a valid email"); ok = false;
+    }
+    if (!phone || !/^\d{10}$/.test(phone)) {
+      setErr("contactPhone", "Enter a valid 10-digit number"); ok = false;
+    }
+
+    // Payment
+    const cardName   = document.getElementById("cardName").value.trim();
+    const cardNumber = document.getElementById("cardNumber").value.replace(/\s/g,"");
+    const cardExpiry = document.getElementById("cardExpiry").value.trim();
+    const cardCVV    = document.getElementById("cardCVV").value.trim();
+
+    if (!cardName)               { setErr("cardName",   "Name is required"); ok = false; }
+    if (cardNumber.length !== 16){ setErr("cardNumber", "Enter a valid 16-digit card number"); ok = false; }
+    if (!/^\d{2}\s\/\s\d{2}$/.test(cardExpiry)) {
+      setErr("cardExpiry", "Enter expiry as MM / YY"); ok = false;
+    }
+    if (!/^\d{3}$/.test(cardCVV)){ setErr("cardCVV", "Enter a valid 3-digit CVV"); ok = false; }
+
+    if (!ok) return;
+
+    // All valid — save booking and go to confirmation
+    const bookingRef = "AD" + Math.floor(100000 + Math.random() * 900000);
+    const booking = {
+      ref: bookingRef,
+      flight,
+      passengers,
+      contact: { email, phone },
+      payment: { cardName, last4: cardNumber.slice(-4) },
+      bookedOn: new Date().toLocaleDateString("en-IN")
+    };
+
+    sessionStorage.setItem("lastBooking", JSON.stringify(booking));
+
+    // Animate button
+    const btn = document.querySelector(".btn-confirm");
+    btn.innerHTML = '<i class="bx bx-loader-alt bx-spin"></i> Processing...';
+    btn.disabled = true;
+
+    setTimeout(() => {
+      window.location.href = "confirmation.html";
+    }, 1800);
+  });
+</script>
+
+</body>
+</html>

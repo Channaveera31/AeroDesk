@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroDesk – Cancelled Trips</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="shared.css"/>
+  <style>
+    .trips-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 48px 24px 64px;
+      position: relative; z-index:1;
+    }
+
+    .trips-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .trips-icon {
+      width: 52px; height: 52px;
+      background: rgba(255,92,106,0.10);
+      border: 1px solid rgba(255,92,106,0.2);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem;
+      color: #ff8f99;
+    }
+
+    .trips-header h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.6rem;
+      color: var(--white);
+      margin-bottom: 3px;
+    }
+
+    .trips-header p {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+
+    /* Sub-nav for trip types */
+    .trips-subnav {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .trips-subnav a {
+      text-decoration: none;
+      padding: 8px 20px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      border: 1px solid var(--glass-border);
+      background: var(--glass-bg);
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+
+    .trips-subnav a:hover {
+      color: var(--white);
+      border-color: rgba(255,255,255,0.2);
+    }
+
+    .trips-subnav a.active {
+      background: rgba(255,92,106,0.10);
+      color: #ff8f99;
+      border-color: rgba(255,92,106,0.2);
+    }
+
+    .table-wrap {
+      background: rgba(21,30,48,0.9);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .airline-dot {
+      width: 32px; height: 32px;
+      background: rgba(255,92,106,0.10);
+      border: 1px solid rgba(255,92,106,0.2);
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      color: #ff8f99;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .fw { font-weight: 600; color: var(--white); }
+
+    .price-cell {
+      font-family: 'Playfair Display', serif;
+      font-size: 1rem;
+      color: #ff8f99;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="home.html" class="navbar-brand">
+    <div class="brand-icon">✈</div>
+    <span class="brand-name">Aero<span>Desk</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="home.html"><i class='bx bx-home-alt'></i> Home</a></li>
+    <li><a href="profile.html"><i class='bx bx-user-circle'></i> My Profile</a></li>
+    <li class="dropdown">
+      <a href="#" class="dropdown-toggle active"><i class='bx bx-trip'></i> My Trips</a>
+      <div class="dropdown-menu">
+        <a href="upcoming.html"><i class='bx bx-takeoff'></i> Upcoming</a>
+        <a href="cancelled.html"><i class='bx bx-x-circle'></i> Cancelled</a>
+        <a href="completed.html"><i class='bx bx-check-circle'></i> Completed</a>
+      </div>
+    </li>
+    <li><a href="index.html" onclick="sessionStorage.clear()"><i class='bx bx-log-out'></i> Logout</a></li>
+  </ul>
+  <div class="nav-welcome" id="welcomeMsg">Welcome</div>
+</nav>
+
+<div class="trips-wrap">
+
+  <div class="trips-header fade-up">
+    <div class="trips-icon"><i class='bx bx-x-circle'></i></div>
+    <div>
+      <h2>Cancelled Trips</h2>
+      <p>Your cancelled travel records</p>
+    </div>
+  </div>
+
+  <!-- Sub-navigation for trips (US007: 3 links) -->
+  <div class="trips-subnav fade-up fade-up-1">
+    <a href="upcoming.html" class="">🛫 Upcoming</a>
+    <a href="cancelled.html" class="active">❌ Cancelled</a>
+    <a href="completed.html" class="">✅ Completed</a>
+  </div>
+
+  <!-- Table (US007: FlightName, Origin, Destination, TravelDate, Price) -->
+  <div class="table-wrap fade-up fade-up-2">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Flight Name</th>
+          <th>Origin</th>
+          <th>Destination</th>
+          <th>Travel Date</th>
+          <th>Price</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="airline-dot"><i class='bx bx-plane-alt'></i></div>
+              <span class="fw">SpiceJet SG-105</span>
+            </div>
+          </td>
+          <td>Mumbai</td>
+          <td><i class='bx bx-right-arrow-alt' style="color:var(--teal-bright);vertical-align:middle;margin-right:4px;"></i>Hyderabad</td>
+          <td>2026-02-14</td>
+          <td class="price-cell">₹2,800</td>
+          <td><span class="badge badge-cancelled">Cancelled</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="airline-dot"><i class='bx bx-plane-alt'></i></div>
+              <span class="fw">GoAir G8-301</span>
+            </div>
+          </td>
+          <td>Pune</td>
+          <td><i class='bx bx-right-arrow-alt' style="color:var(--teal-bright);vertical-align:middle;margin-right:4px;"></i>Ahmedabad</td>
+          <td>2026-03-01</td>
+          <td class="price-cell">₹2,200</td>
+          <td><span class="badge badge-cancelled">Cancelled</span></td>
+        </tr>
+        <tr>
+          <td>
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="airline-dot"><i class='bx bx-plane-alt'></i></div>
+              <span class="fw">IndiGo 6E-415</span>
+            </div>
+          </td>
+          <td>Hyderabad</td>
+          <td><i class='bx bx-right-arrow-alt' style="color:var(--teal-bright);vertical-align:middle;margin-right:4px;"></i>Kolkata</td>
+          <td>2026-03-20</td>
+          <td class="price-cell">₹3,700</td>
+          <td><span class="badge badge-cancelled">Cancelled</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+  const name = sessionStorage.getItem("passengerName") || "Passenger";
+  document.getElementById("welcomeMsg").innerHTML = "Welcome <strong>" + name + "</strong> !!!";
+</script>
+</body>
+</html>

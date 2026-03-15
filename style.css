@@ -1,0 +1,367 @@
+/* ============================================================
+   AeroDesk – style.css  (US002: External CSS for Login Page)
+   Background: bg.png (AeroDesk travel image)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+:root {
+  --teal:         #008080;
+  --teal-bright:  #00c4a7;
+  --teal-glow:    rgba(0,196,167,0.18);
+  --navy:         #0a0f1e;
+  --white:        #ffffff;
+  --off-white:    #e8f0fe;
+  --muted:        rgba(255,255,255,0.55);
+  --danger:       #ff5c6a;
+  --glass-bg:     rgba(8, 20, 40, 0.55);
+  --glass-border: rgba(255,255,255,0.18);
+  --radius-lg:    22px;
+  --radius-sm:    10px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* US002: background-color teal (base), overridden by bg image */
+body {
+  background-color: teal;
+  font-family: 'DM Sans', sans-serif;
+  color: var(--white);
+  min-height: 100vh;
+}
+
+/* ── BACKGROUND IMAGE (bg.png) ── */
+.bg-image {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  margin: 0; padding: 0;
+  background-image: url('AeroDesk.png');
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  z-index: 0;
+  animation: bgZoom 20s ease-in-out infinite alternate;
+}
+
+@keyframes bgZoom {
+  from { transform: scale(1);    }
+  to   { transform: scale(1.06); }
+}
+
+/* Gradient overlay — stronger at top so card is readable */
+.bg-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    linear-gradient(
+      to right,
+      rgba(5, 15, 35, 0.72) 0%,
+      rgba(5, 15, 35, 0.45) 45%,
+      rgba(5, 15, 35, 0.10) 100%
+    );
+  z-index: 1;
+}
+
+/* ── FLOATING PLANES ── */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.p {
+  position: absolute;
+  font-size: 1.4rem;
+  opacity: 0.18;
+  color: var(--teal-bright);
+  animation: floatPlane linear infinite;
+  filter: drop-shadow(0 0 8px rgba(0,196,167,0.4));
+}
+
+.p1 { top: 15%; left: -60px; animation-duration: 18s; animation-delay: 0s;   font-size: 1.2rem; }
+.p2 { top: 40%; left: -60px; animation-duration: 24s; animation-delay: 6s;   font-size: 1.6rem; opacity: 0.12; }
+.p3 { top: 70%; left: -60px; animation-duration: 20s; animation-delay: 12s;  font-size: 1rem; }
+
+@keyframes floatPlane {
+  0%   { transform: translateX(0)       translateY(0)    rotate(-5deg); opacity: 0;    }
+  10%  { opacity: 0.18; }
+  90%  { opacity: 0.18; }
+  100% { transform: translateX(110vw)   translateY(-60px) rotate(5deg); opacity: 0;    }
+}
+
+/* ── PAGE CENTER ── */
+.page-center {
+  position: relative;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;  /* card on the LEFT side */
+  padding: 32px 6vw;
+}
+
+/* ── FADE UP ANIMATION ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.fade-up { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+
+/* ── US002: LOGIN CARD (div wrapper)
+   width: 420px
+   background: transparent
+   border: 2px
+   backdrop-filter: blur(30px)
+   box-shadow, border-radius, padding: 40px
+──────────────────────────────────── */
+.login-box {
+  width: 420px;                                 /* US002 */
+  background: var(--glass-bg);                  /* US002: transparent-ish */
+  border: 2px solid var(--glass-border);        /* US002 */
+  backdrop-filter: blur(30px);                  /* US002 */
+  -webkit-backdrop-filter: blur(30px);
+  box-shadow:                                   /* US002 */
+    0 32px 80px rgba(0,0,0,0.5),
+    0 0 0 1px rgba(255,255,255,0.06) inset,
+    0 0 60px rgba(0,196,167,0.08) inset;
+  border-radius: var(--radius-lg);              /* US002 */
+  padding: 40px;                                /* US002 */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle top edge glow */
+.login-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 20%; right: 20%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--teal-bright), transparent);
+  opacity: 0.6;
+}
+
+/* ── BRAND HEADER ── */
+.brand-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.brand-icon-wrap {
+  width: 46px; height: 46px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-bright));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem;
+  box-shadow: 0 4px 20px rgba(0,196,167,0.45);
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--white);
+  line-height: 1.1;
+}
+
+.brand-name span { color: var(--teal-bright); }
+
+.brand-tagline {
+  font-size: 0.7rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+/* Separator line */
+.form-sep {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--glass-border), transparent);
+  margin-bottom: 24px;
+}
+
+.welcome-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+
+.welcome-sub {
+  font-size: 0.84rem;
+  color: var(--muted);
+  margin-bottom: 22px;
+}
+
+/* ── ERROR BANNER (US003: div above UserID) ── */
+.error-banner {
+  background: rgba(255,80,80,0.15);
+  border: 1px solid rgba(255,100,100,0.35);
+  border-radius: var(--radius-sm);
+  color: #ffaaaa;
+  font-size: 0.83rem;
+  font-weight: 500;
+  text-align: center;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, padding 0.3s ease, margin 0.3s ease;
+}
+
+.error-banner.show {
+  max-height: 50px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+}
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  20%,60%  { transform: translateX(-6px); }
+  40%,80%  { transform: translateX(6px); }
+}
+
+.error-banner.shake { animation: shake 0.4s ease; }
+
+/* ── FIELD GROUPS ── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+}
+
+.field-group label {
+  font-size: 0.73rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+}
+
+/* US002: Input box attributes with icons */
+.input-icon-wrap { position: relative; }
+
+.input-icon-wrap input {
+  width: 100%;
+  height: 50px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius-sm);
+  padding: 0 46px 0 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.93rem;
+  color: var(--white);
+  outline: none;
+  transition: border-color 0.25s, background 0.25s, box-shadow 0.25s;
+}
+
+.input-icon-wrap input::placeholder { color: rgba(255,255,255,0.35); }
+
+.input-icon-wrap input:focus {
+  border-color: var(--teal-bright);
+  background: rgba(0,196,167,0.08);
+  box-shadow: 0 0 0 3px rgba(0,196,167,0.14);
+}
+
+/* US002: bxs-user for UserID, bxs-lock for Password */
+.input-icon-wrap i {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.15rem;
+  color: rgba(255,255,255,0.35);
+  pointer-events: none;
+  transition: color 0.25s;
+}
+
+.input-icon-wrap input:focus + i {
+  color: var(--teal-bright);
+}
+
+/* ── US002: Login Button
+   on hover → background = black
+   border-radius = 70px
+──────────────────────────── */
+.btn-login {
+  width: 100%;
+  height: 50px;
+  margin-top: 8px;
+  background: linear-gradient(135deg, var(--teal), var(--teal-bright));
+  color: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.97rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 70px;          /* US002 */
+  cursor: pointer;
+  letter-spacing: 0.6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 6px 24px rgba(0,196,167,0.35);
+}
+
+/* US002: hover → background = black */
+.btn-login:hover {
+  background: black;
+  box-shadow: 0 10px 32px rgba(0,0,0,0.55);
+  transform: translateY(-2px);
+}
+
+.btn-login:active { transform: translateY(0); }
+
+/* ── FOOTER ── */
+.form-footer {
+  text-align: center;
+  margin-top: 22px;
+  font-size: 0.84rem;
+  color: var(--muted);
+}
+
+.form-footer a {
+  color: var(--teal-bright);
+  font-weight: 600;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.form-footer a:hover { opacity: 0.75; }
+
+.demo-hint {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.22);
+}
+
+.demo-hint code {
+  font-family: 'Courier New', monospace;
+  background: rgba(255,255,255,0.08);
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: rgba(255,255,255,0.38);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 500px) {
+  .page-center { justify-content: center; padding: 24px 16px; }
+  .login-box   { width: 100%; padding: 32px 24px; }
+}

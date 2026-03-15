@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroDesk – Login</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+  <!-- US002: External CSS -->
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- Full background image layer -->
+  <div class="bg-image"></div>
+  <!-- Dark gradient overlay -->
+  <div class="bg-overlay"></div>
+
+  <!-- Animated floating planes -->
+  <div class="particles" aria-hidden="true">
+    <span class="p p1">✈</span>
+    <span class="p p2">✈</span>
+    <span class="p p3">✈</span>
+  </div>
+
+  <div class="page-center">
+    <div class="login-box fade-up">
+
+      <!-- Brand header -->
+      <div class="brand-header">
+        <div class="brand-icon-wrap">✈</div>
+        <div>
+          <h1 class="brand-name">Aero<span>Desk</span></h1>
+          <p class="brand-tagline">Airline Management System</p>
+        </div>
+      </div>
+
+      <div class="form-sep"></div>
+
+      <h2 class="welcome-heading">Welcome Back</h2>
+      <p class="welcome-sub">Sign in to manage your flights</p>
+
+      <!-- US003: Error div ABOVE UserID -->
+      <div id="errorMsg" class="error-banner"></div>
+
+      <form id="loginForm" novalidate>
+
+        <div class="field-group">
+          <label for="userId">User ID</label>
+          <div class="input-icon-wrap">
+            <input type="text" id="userId" placeholder="Enter your numeric ID" maxlength="5" autocomplete="off"/>
+            <!-- US002: bxs-user icon -->
+            <i class='bx bxs-user'></i>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="password">Password</label>
+          <div class="input-icon-wrap">
+            <input type="password" id="password" placeholder="Enter your password" maxlength="30"/>
+            <!-- US002: bxs-lock icon -->
+            <i class='bx bxs-lock'></i>
+          </div>
+        </div>
+
+        <!-- US002: hover=black, border-radius=70px -->
+        <button type="submit" class="btn-login">
+          <i class='bx bx-log-in'></i> Sign In
+        </button>
+
+      </form>
+
+      <div class="form-footer">
+        New here? <a href="register.html">Register Yourself →</a>
+      </div>
+
+      <div class="demo-hint">
+        Demo &nbsp;·&nbsp; ID: <code>10001</code> &nbsp;/&nbsp; Pass: <code>pass@1</code>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- US003: INTERNAL JavaScript -->
+  <script>
+    const STATIC_USERS = [
+      { userId: "10001", password: "pass@1" },
+      { userId: "10002", password: "pass@2" },
+      { userId: "10003", password: "pass@3" }
+    ];
+
+    const form     = document.getElementById("loginForm");
+    const uidInput = document.getElementById("userId");
+    const pwdInput = document.getElementById("password");
+    const errEl    = document.getElementById("errorMsg");
+
+    function showError(msg) {
+      errEl.textContent = msg;
+      errEl.classList.add("show");
+      errEl.classList.add("shake");
+      setTimeout(() => errEl.classList.remove("shake"), 500);
+    }
+
+    function clearError() {
+      errEl.textContent = "";
+      errEl.classList.remove("show");
+    }
+
+    form.addEventListener("submit", function(e) {
+      e.preventDefault();
+      clearError();
+
+      const uid = uidInput.value.trim();
+      const pwd = pwdInput.value.trim();
+
+      if (!uid && !pwd)                          { showError("Both ID/password not valid"); return; }
+      if (!uid)                                  { showError("ID not valid"); return; }
+      if (!pwd)                                  { showError("Password not valid"); return; }
+      if (!/^\d+$/.test(uid) || uid.length > 5) { showError("ID not valid"); return; }
+      if (pwd.length < 6 || pwd.length > 30)    { showError("Password not valid"); return; }
+
+      const idMatch   = STATIC_USERS.find(u => u.userId === uid);
+      const fullMatch = STATIC_USERS.find(u => u.userId === uid && u.password === pwd);
+
+      if (!idMatch)        { showError("ID not valid"); }
+      else if (!fullMatch) { showError("Password not valid"); }
+      else {
+        sessionStorage.setItem("loggedInUser", uid);
+        sessionStorage.setItem("passengerName", "Passenger_" + uid);
+        window.location.href = "home.html";
+      }
+    });
+  </script>
+
+</body>
+</html>

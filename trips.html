@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AeroDesk – My Trips</title>
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet"/>
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; background: #f0f8f8; min-height: 100vh; }
+
+    nav {
+      background: teal; color: white;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 30px; height: 56px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .nav-left { display: flex; align-items: center; gap: 6px; }
+    .brand { font-size: 1.1rem; font-weight: bold; letter-spacing: 1px; margin-right: 16px; }
+    .nav-links { display: flex; gap: 2px; list-style: none; }
+    .nav-links a {
+      color: white; text-decoration: none; padding: 8px 14px;
+      border-radius: 6px; font-size: 0.9rem; font-weight: 500;
+      transition: background 0.2s; display: flex; align-items: center; gap: 6px;
+    }
+    .nav-links a:hover { background: rgba(255,255,255,0.18); }
+    .dropdown { position: relative; }
+    .dropdown-menu {
+      display: none; position: absolute; top: 100%; left: 0;
+      background: white; border-radius: 8px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+      min-width: 160px; z-index: 200; overflow: hidden;
+    }
+    .dropdown:hover .dropdown-menu { display: block; }
+    .dropdown-menu a {
+      color: teal !important; padding: 10px 16px; display: block;
+      font-size: 0.88rem; transition: background 0.15s; border-radius: 0 !important;
+    }
+    .dropdown-menu a:hover { background: #e0f5f5 !important; }
+    .welcome-text { font-size: 0.9rem; font-weight: 600; }
+
+    /* Page content */
+    .content {
+      max-width: 700px;
+      margin: 50px auto;
+      padding: 0 16px;
+    }
+
+    .page-title {
+      color: teal;
+      font-size: 1.4rem;
+      margin-bottom: 8px;
+    }
+
+    .page-sub {
+      color: #777;
+      font-size: 0.88rem;
+      margin-bottom: 32px;
+    }
+
+    /* 3 Trip category cards */
+    .trips-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 20px;
+    }
+
+    .trip-card {
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 4px 20px rgba(0,128,128,0.1);
+      padding: 30px 20px;
+      text-align: center;
+      text-decoration: none;
+      color: inherit;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: block;
+    }
+
+    .trip-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,128,128,0.18);
+    }
+
+    .trip-card .icon {
+      font-size: 2.4rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .trip-card h3 {
+      font-size: 1rem;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .trip-card p {
+      font-size: 0.8rem;
+      color: #888;
+    }
+
+    .card-upcoming  { border-top: 4px solid teal; }
+    .card-cancelled { border-top: 4px solid #c0392b; }
+    .card-completed { border-top: 4px solid #27ae60; }
+
+    .card-upcoming  h3 { color: teal; }
+    .card-cancelled h3 { color: #c0392b; }
+    .card-completed h3 { color: #27ae60; }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <span class="brand">✈ AeroDesk</span>
+    <ul class="nav-links">
+      <li><a href="home.html"><i class='bx bx-home'></i> Home</a></li>
+      <li><a href="profile.html"><i class='bx bx-user-circle'></i> My Profile</a></li>
+      <li class="dropdown">
+        <a href="trips.html"><i class='bx bx-trip'></i> My Trips ▾</a>
+        <div class="dropdown-menu">
+          <a href="upcoming.html">🛫 Upcoming</a>
+          <a href="cancelled.html">❌ Cancelled</a>
+          <a href="completed.html">✅ Completed</a>
+        </div>
+      </li>
+      <li><a href="index.html" onclick="sessionStorage.clear()"><i class='bx bx-log-out'></i> Logout</a></li>
+    </ul>
+  </div>
+  <span class="welcome-text" id="welcomeMsg"></span>
+</nav>
+
+<div class="content">
+  <h2 class="page-title">🗺️ My Trips</h2>
+  <p class="page-sub">Select a category below to view your travel history</p>
+
+  <!-- 3 links as per US007 -->
+  <div class="trips-grid">
+
+    <a href="upcoming.html" class="trip-card card-upcoming">
+      <span class="icon">🛫</span>
+      <h3>Upcoming</h3>
+      <p>View your scheduled flights</p>
+    </a>
+
+    <a href="cancelled.html" class="trip-card card-cancelled">
+      <span class="icon">❌</span>
+      <h3>Cancelled</h3>
+      <p>View your cancelled bookings</p>
+    </a>
+
+    <a href="completed.html" class="trip-card card-completed">
+      <span class="icon">✅</span>
+      <h3>Completed</h3>
+      <p>View your past journeys</p>
+    </a>
+
+  </div>
+</div>
+
+<script>
+  const name = sessionStorage.getItem("passengerName") || "Passenger";
+  document.getElementById("welcomeMsg").textContent = "Welcome " + name + " !!!";
+</script>
+</body>
+</html>
